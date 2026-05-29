@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import LoadingPipeline from "@/components/LoadingPipeline";
 import ProductCard from "@/components/ProductCard";
+import LLMSelector from "@/components/LLMSelector";
 
 const EXAMPLES = [
   "Wireless earphones for gym, sweat resistant, under ₹2000",
@@ -21,6 +22,7 @@ export default function DiscoverPage() {
   const [pass, setPass] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [stats, setStats] = useState({});
+  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-20250514" });
   const abortRef = useRef(null);
 
   async function handleSubmit(e) {
@@ -41,7 +43,7 @@ export default function DiscoverPage() {
       const res = await fetch("/api/discover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, llmConfig }),
         signal: controller.signal,
       });
 
@@ -145,6 +147,8 @@ export default function DiscoverPage() {
                 />
                 <p className="form-hint">Mix hard requirements (price, specs) with soft ones (reliable, no bloat). The pipeline handles both.</p>
               </div>
+
+              <LLMSelector value={llmConfig} onChange={setLlmConfig} disabled={loading} />
 
               <div className="examples" style={{ padding: "0 0 20px" }}>
                 <p className="examples-label">Try these queries</p>

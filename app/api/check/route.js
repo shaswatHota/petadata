@@ -25,7 +25,7 @@ import { getTranscript, extractReviewerAnalysis, extractVideoId } from "@/lib/tr
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { product, context } = body;
+    const { product, context, llmConfig } = body;
 
     if (!product?.trim()) {
       return NextResponse.json({ error: "Product name or URL is required" }, { status: 400 });
@@ -106,7 +106,8 @@ export async function POST(request) {
     const verdict = await runUtilityCheck(
       productDetails,
       context,
-      { reviews: reviewsText, transcript, comments: commentsText }
+      { reviews: reviewsText, transcript, comments: commentsText },
+      llmConfig
     );
 
     return NextResponse.json({

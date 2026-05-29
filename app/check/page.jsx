@@ -5,6 +5,7 @@ import Link from "next/link";
 import LoadingPipeline from "@/components/LoadingPipeline";
 import UtilityVerdict from "@/components/UtilityVerdict";
 import SignalBreakdown from "@/components/SignalBreakdown";
+import LLMSelector from "@/components/LLMSelector";
 
 const EXAMPLES = [
   "Student using it 8 hours at desk, mostly lo-fi and podcasts, budget ₹3000",
@@ -18,6 +19,7 @@ export default function CheckPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-20250514" });
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -30,7 +32,7 @@ export default function CheckPage() {
       const res = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product, context }),
+        body: JSON.stringify({ product, context, llmConfig }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
@@ -106,6 +108,8 @@ export default function CheckPage() {
                 />
                 <p className="form-hint">The more specific you are, the better the verdict.</p>
               </div>
+
+              <LLMSelector value={llmConfig} onChange={setLlmConfig} disabled={loading} />
 
               <div className="examples" style={{ padding: "0 0 20px" }}>
                 <p className="examples-label">Example use cases</p>

@@ -19,7 +19,7 @@ import { getTranscript, extractReviewerAnalysis } from "@/lib/transcript.js";
 
 export async function POST(request) {
   const body = await request.json();
-  const { query } = body;
+  const { query, llmConfig } = body;
 
   if (!query?.trim()) {
     return new Response(JSON.stringify({ error: "Query is required" }), {
@@ -71,7 +71,7 @@ export async function POST(request) {
         send("status", { pass: 1, message: "Pass 1: Eliminating products that fail hard requirements..." });
         let pass1Result;
         try {
-          pass1Result = await runPass1(productsWithSpecs, query);
+          pass1Result = await runPass1(productsWithSpecs, query, llmConfig);
         } catch (e) {
           send("error", { message: `Pass 1 failed: ${e.message}` });
           controller.close();
@@ -108,7 +108,7 @@ export async function POST(request) {
 
         let pass2Result;
         try {
-          pass2Result = await runPass2(productsWithReviews, query);
+          pass2Result = await runPass2(productsWithReviews, query, llmConfig);
         } catch (e) {
           send("error", { message: `Pass 2 failed: ${e.message}` });
           controller.close();
@@ -168,7 +168,7 @@ export async function POST(request) {
         // Proceed with Pass 3 if we got at least some YouTube data
         let finalRanking = ranked; // fallback to pass 2 if pass 3 fails
         try {
-          const pass3Result = await runPass3(top3, query, ytDataArray);
+          const pass3Result = await runPass3(top3, query, ytDataArray, llmConfig);
           if (pass3Result?.finalRanking?.length) {
             // Merge pass 3 top results with remaining ranked products from pass 2
             const top3Asins = new Set(pass3Result.finalRanking.map((p) => p.asin));
