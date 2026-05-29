@@ -34,31 +34,51 @@ export async function POST(request) {
       return NextResponse.json({ error: "Use case context is required" }, { status: 400 });
     }
 
-    // Step 1: Resolve ASIN
+    // Step 1: Resolve ASIN + extract a human-readable title slug from URL for fallback search
     let asin = null;
+    let urlTitleSlug = null;
     const amazonAsinMatch = product.match(/\/([A-Z0-9]{10})(?:\/|\?|$)/);
     if (amazonAsinMatch) {
       asin = amazonAsinMatch[1];
+      // Extract title slug from URL path: /Product-Name-Here/dp/ASIN → "Product Name Here"
+      const slugMatch = product.match(/amazon\.[a-z.]+\/([^/]+)\/dp\//);
+      if (slugMatch) {
+        urlTitleSlug = slugMatch[1].replace(/-/g, " ").replace(/&amp;/g, "&").trim();
+      }
     }
 
     // Step 2: Get product details (and ASIN if not extracted from URL)
     let productDetails;
     if (asin) {
-      productDetails = await getProductDetails(asin);
-    } else {
-      // Search by name and use first result
-      const results = await searchAmazonProducts(product);
-      if (!results?.length) {
-        return NextResponse.json({ error: `No products found for: ${product}` }, { status: 404 });
-      }
-      productDetails = results[0];
-      asin = productDetails.asin;
-      // Fetch full details for the found product
       try {
-        const full = await getProductDetails(asin);
-        productDetails = { ...productDetails, ...full };
+        productDetails = await getProductDetails(asin);
+      } catch (e) {
+        console.warn(`[check] getProductDetails failed for ASIN ${asin}:`, e.message);
+        // Fall through to a search-based lookup so we still have a title/specs
+        productDetails = null;
+      }
+    }
+
+    if (!productDetails || !productDetails.title) {
+      // PDP returned 404 (e.g. amazon.in ASIN on amazon.com scraper) — search by title slug or name
+      // Prefer URL title slug > original product input > raw ASIN (least useful as search term)
+      const searchQuery = urlTitleSlug || (asin ? null : product) || product;
+      console.log(`[check] Falling back to search with query: "${searchQuery}"`);
+      const results = await searchAmazonProducts(searchQuery);
+      if (!results?.length) {
+        return NextResponse.json({ 
+          error: `Could not find this product on Amazon. Note: The scraper uses Amazon.com, so regional links (like amazon.in) or region-specific brands (like iQOO) may not return results.` 
+        }, { status: 404 });
+      }
+      const topResult = results[0];
+      asin = asin || topResult.asin;
+      // Try to fetch full details for the search result; fall back to search result data
+      try {
+        const full = await getProductDetails(topResult.asin || asin);
+        productDetails = { ...topResult, ...full };
       } catch (e) {
         console.warn("[check] Could not fetch full details, using search result:", e.message);
+        productDetails = topResult;
       }
     }
 

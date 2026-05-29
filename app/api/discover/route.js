@@ -43,6 +43,7 @@ export async function POST(request) {
 
         // ── Step 1: Amazon search ───────────────────────────────────────────
         let products = await searchAmazonProducts(query);
+        console.log(`[discover] searchAmazonProducts returned ${products?.length ?? "null"} items`);
         if (!products?.length) {
           send("error", { message: "No products found for your query. Try rephrasing." });
           controller.close();
@@ -60,12 +61,13 @@ export async function POST(request) {
         const productsWithSpecs = products
           .map((p, i) => {
             const specResult = specsResults[i];
-            if (specResult.status === "fulfilled") {
-              return { ...p, ...specResult.value, asin: p.asin || specResult.value.asin };
+            if (specResult.status === "fulfilled" && specResult.value) {
+              return { ...p, ...specResult.value, asin: p.asin || p.id || specResult.value.asin };
             }
-            return { ...p, specs: {} };
+            // Spec fetch failed (e.g. 404 on PDP) — keep the product from search results
+            return { ...p, asin: p.asin || p.id, specs: {} };
           })
-          .filter((p) => p.asin); // skip any that lost their ASIN
+          .filter((p) => p.asin); // skip any that have no ASIN at all
 
         // ── Pass 1: Hard spec elimination (Haiku) ──────────────────────────
         send("status", { pass: 1, message: "Pass 1: Eliminating products that fail hard requirements..." });

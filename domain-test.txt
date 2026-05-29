@@ -1,0 +1,6 @@
+Task submitted: {"status":"processing","job_id":"40b2462c-7dbf-4e80-b7a8-619c24d34cbb","poll_url":"/v1/wire/jobs/40b2462c-7dbf-4e80-b7a8-619c24d34cbb"}
+Status: processing
+Status: processing
+Status: completed
+Returned items: 16
+First item URL: https://www.amazon.com/dp/B0F7JZYWLL
