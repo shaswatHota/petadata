@@ -20,7 +20,7 @@ Both features use Wire (Anakin's authenticated action layer) for data, Claude So
 |---|---|---|
 | Framework | Next.js 14 (App Router) | Frontend + API routes in one project, no separate backend |
 | Styling | Tailwind CSS | Fast, clean, no custom CSS overhead |
-| LLM | Claude Sonnet 4.6 (`claude-sonnet-4-20250514`) | Pass 2 and Pass 3 reasoning |
+| LLM | Claude Sonnet 4.6 (`claude-sonnet-4-6`) | Pass 2 and Pass 3 reasoning |
 | LLM (cheap pass) | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) | Pass 1 only — mechanical spec filtering |
 | Data layer | Wire API (Anakin) | Amazon + YouTube data via authenticated actions |
 | Transcripts | `youtube-transcript` npm package | Fetches auto-generated YouTube captions — no Whisper, no audio download |

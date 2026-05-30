@@ -26,6 +26,24 @@ export default function UtilityVerdict({ product, verdict, meta }) {
 
   const config = verdictConfig[v] || verdictConfig["Acceptable"];
 
+  const formatPriceToINR = (priceStr) => {
+    if (!priceStr) return null;
+    const str = priceStr.toString();
+    const match = str.match(/[\d,.]+/);
+    if (!match) return str;
+    const num = parseFloat(match[0].replace(/,/g, ''));
+    if (isNaN(num)) return str;
+    
+    if (str.includes('₹') || str.toLowerCase().includes('inr')) {
+       return `₹${num.toLocaleString('en-IN')}`;
+    }
+    
+    const inrValue = Math.round(num * 83.5);
+    return `₹${inrValue.toLocaleString('en-IN')}`;
+  };
+
+  const amazonUrl = product?.url || (product?.asin ? `https://www.amazon.com/dp/${product.asin}` : null);
+
   return (
     <div className="utility-verdict">
       {/* Hero verdict */}
@@ -43,17 +61,30 @@ export default function UtilityVerdict({ product, verdict, meta }) {
 
       {/* Product info strip */}
       {product && (
-        <div className="verdict-product-strip">
-          {product.image && (
-            <img src={product.image} alt={product.title} className="verdict-product-img" />
-          )}
-          <div className="verdict-product-info">
-            <p className="verdict-product-title">{product.title}</p>
-            <div className="verdict-product-meta">
-              {product.price && <span>{product.price}</span>}
-              {product.rating && <span>★ {product.rating}</span>}
+        <div className="verdict-product-strip" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {product.image && (
+              <img src={product.image} alt={product.title} className="verdict-product-img" />
+            )}
+            <div className="verdict-product-info">
+              <p className="verdict-product-title">{product.title}</p>
+              <div className="verdict-product-meta">
+                {product.price && <span>{formatPriceToINR(product.price)}</span>}
+                {product.rating && <span>★ {product.rating}</span>}
+              </div>
             </div>
           </div>
+          {amazonUrl && (
+            <a 
+              href={amazonUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{ padding: '8px 16px', fontSize: '0.9rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+            >
+              amazon.com link 🛒
+            </a>
+          )}
         </div>
       )}
 

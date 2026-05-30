@@ -19,7 +19,7 @@ export default function CheckPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-20250514" });
+  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-6" });
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -29,6 +29,14 @@ export default function CheckPage() {
     setResult(null);
 
     try {
+      // Small timeout to allow React to render the loading section before scrolling
+      setTimeout(() => {
+        const loadingSection = document.getElementById("loading-section");
+        if (loadingSection) {
+          loadingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 50);
+
       const res = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,11 +149,13 @@ export default function CheckPage() {
           {error && <div className="error-banner">⚠ {error}</div>}
 
           {loading && (
-            <LoadingPipeline
-              mode="check"
-              currentPass={1}
-              statusMessage="Fetching product data, reviews, and YouTube signals in parallel…"
-            />
+            <div id="loading-section">
+              <LoadingPipeline
+                mode="check"
+                currentPass={1}
+                statusMessage="Fetching product data, reviews, and YouTube signals in parallel…"
+              />
+            </div>
           )}
 
           {result && (

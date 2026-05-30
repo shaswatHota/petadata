@@ -37,7 +37,24 @@ export default function ProductCard({ product, rank }) {
     return map[youtubeSignal] || null;
   }
 
+  const formatPriceToINR = (priceStr) => {
+    if (!priceStr) return null;
+    const str = priceStr.toString();
+    const match = str.match(/[\d,.]+/);
+    if (!match) return str;
+    const num = parseFloat(match[0].replace(/,/g, ''));
+    if (isNaN(num)) return str;
+    
+    if (str.includes('₹') || str.toLowerCase().includes('inr')) {
+       return `₹${num.toLocaleString('en-IN')}`;
+    }
+    
+    const inrValue = Math.round(num * 83.5);
+    return `₹${inrValue.toLocaleString('en-IN')}`;
+  };
+
   const ytBadge = getYtBadge();
+  const amazonUrl = product?.url || (product?.asin ? `https://www.amazon.com/dp/${product.asin}` : null);
 
   return (
     <div className={`product-card ${isTopPick ? "top-pick" : ""}`}>
@@ -63,13 +80,26 @@ export default function ProductCard({ product, rank }) {
 
         {/* Right: info */}
         <div className="card-info-col">
-          <div className="card-header">
-            {rank && <span className="card-rank">#{rank}</span>}
-            <h3 className="card-title">{title}</h3>
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+            <div>
+              {rank && <span className="card-rank">#{rank}</span>}
+              <h3 className="card-title" style={{ display: 'inline' }}>{title}</h3>
+            </div>
+            {amazonUrl && (
+              <a 
+                href={amazonUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-primary"
+                style={{ padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+              >
+                amazon.com link 🛒
+              </a>
+            )}
           </div>
 
           <div className="card-meta">
-            {price && <span className="card-price">{price}</span>}
+            {price && <span className="card-price">{formatPriceToINR(price)}</span>}
             {rating && (
               <span className="card-rating">
                 ★ {typeof rating === "number" ? rating.toFixed(1) : rating}

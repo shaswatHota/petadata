@@ -22,7 +22,7 @@ export default function DiscoverPage() {
   const [pass, setPass] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [stats, setStats] = useState({});
-  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-20250514" });
+  const [llmConfig, setLlmConfig] = useState({ provider: "claude", model: "claude-sonnet-4-6" });
   const abortRef = useRef(null);
 
   async function handleSubmit(e) {
@@ -40,6 +40,14 @@ export default function DiscoverPage() {
     abortRef.current = controller;
 
     try {
+      // Small timeout to allow React to render the loading section before scrolling
+      setTimeout(() => {
+        const loadingSection = document.getElementById("loading-section-discover");
+        if (loadingSection) {
+          loadingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 50);
+
       const res = await fetch("/api/discover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,12 +188,14 @@ export default function DiscoverPage() {
           {error && <div className="error-banner">⚠ {error}</div>}
 
           {loading && (
-            <LoadingPipeline
-              mode="discover"
-              currentPass={pass}
-              statusMessage={statusMessage}
-              stats={stats}
-            />
+            <div id="loading-section-discover">
+              <LoadingPipeline
+                mode="discover"
+                currentPass={pass}
+                statusMessage={statusMessage}
+                stats={stats}
+              />
+            </div>
           )}
 
           {results && (

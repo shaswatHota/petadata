@@ -17,10 +17,10 @@ const PROVIDERS = [
     badge: "Anthropic",
     icon: "🧠",
     models: [
-      { id: "claude-sonnet-4-20250514", label: "Sonnet 4", tag: "Recommended" },
+      { id: "claude-sonnet-4-6", label: "Sonnet 4.6", tag: "Recommended" },
       { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5", tag: "Fast" },
     ],
-    defaultModel: "claude-sonnet-4-20250514",
+    defaultModel: "claude-sonnet-4-6",
   },
   {
     id: "gemini",
