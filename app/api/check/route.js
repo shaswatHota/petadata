@@ -21,7 +21,12 @@ import {
 import { runUtilityCheck } from "@/lib/llm.js";
 import { extractKeywords, filterReviews, filterComments, formatReviewsForLLM, formatCommentsForLLM } from "@/lib/filters.js";
 import { getTranscript, extractReviewerAnalysis, extractVideoId } from "@/lib/transcript.js";
-
+function resolveYoutubeVideoId(video) {
+  if (!video) return null;
+  return extractVideoId(
+    video.url || video.video_id || video.videoId || video.id?.videoId || video.id
+  );
+}
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -105,12 +110,19 @@ export async function POST(request) {
     if (videos?.length) {
       const topVideo = videos[0];
       videoTitle = topVideo.title || topVideo.snippet?.title;
-      const videoId = topVideo.id?.videoId || topVideo.videoId || topVideo.id;
+      const videoId = resolveYoutubeVideoId(topVideo);
+
+      console.log("getTranscript called with video id:", videoId, "from topVideo:", JSON.stringify(topVideo));
 
       const [transcriptResult, commentsResult] = await Promise.allSettled([
         getTranscript(videoId),
         getVideoComments(videoId, 300),
       ]);
+
+      console.log("transcript result:", transcriptResult.value);
+      console.log("transcript status:", transcriptResult.status);
+      console.log("comments result:", commentsResult.value);
+      console.log("comments status:", commentsResult.status);
 
       if (transcriptResult.status === "fulfilled" && transcriptResult.value) {
         transcript = extractReviewerAnalysis(transcriptResult.value, keywords, 2000);
@@ -129,6 +141,7 @@ export async function POST(request) {
       { reviews: reviewsText, transcript, comments: commentsText },
       llmConfig
     );
+    console.log("verdict check : ", verdict)
 
     return NextResponse.json({
       product: {

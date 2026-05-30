@@ -15,7 +15,14 @@
 import { searchAmazonProducts, getProductDetails, getProductReviews, searchYouTube, getVideoComments } from "@/lib/wire.js";
 import { runPass1, runPass2, runPass3 } from "@/lib/llm.js";
 import { extractKeywords, filterReviews, filterComments, formatReviewsForLLM, formatCommentsForLLM } from "@/lib/filters.js";
-import { getTranscript, extractReviewerAnalysis } from "@/lib/transcript.js";
+import { getTranscript, extractReviewerAnalysis, extractVideoId } from "@/lib/transcript.js";
+
+function resolveYoutubeVideoId(video) {
+  if (!video) return null;
+  return extractVideoId(
+    video.url || video.video_id || video.videoId || video.id?.videoId || video.id
+  );
+}
 
 export async function POST(request) {
   const body = await request.json();
@@ -145,8 +152,12 @@ export async function POST(request) {
             }
 
             const topVideo = videos[0];
-            const videoId = topVideo.id?.videoId || topVideo.videoId || topVideo.id;
+            const videoId = resolveYoutubeVideoId(topVideo);
             const videoTitle = topVideo.title || topVideo.snippet?.title;
+
+            if (!videoId) {
+              console.warn(`[discover] Could not resolve video ID from topVideo: ${JSON.stringify(topVideo)}`);
+            }
 
             const [transcriptResult, commentsResult] = await Promise.allSettled([
               getTranscript(videoId),
