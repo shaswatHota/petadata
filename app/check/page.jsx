@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, ArrowRight, Search, AlertTriangle } from "lucide-react";
 import LoadingPipeline from "@/components/LoadingPipeline";
 import UtilityVerdict from "@/components/UtilityVerdict";
 import SignalBreakdown from "@/components/SignalBreakdown";
@@ -72,9 +73,11 @@ export default function CheckPage() {
       <div className="page-header">
         <div className="page-header-inner">
           <Link href="/" className="page-back" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.82rem", color: "var(--text3)", marginBottom: 16 }}>
-            ← Back
+            <ArrowLeft size={14} /> Back
           </Link>
-          <h1 className="page-title">🔍 Utility Check</h1>
+          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Search size={24} /> Utility Check
+          </h1>
           <p className="page-subtitle">
             Paste a product name or Amazon URL and describe your use case. We'll tell you if it's the right fit.
           </p>
@@ -140,13 +143,16 @@ export default function CheckPage() {
                 type="submit"
                 className="btn-primary"
                 disabled={loading || !product.trim() || !context.trim()}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                {loading ? "Analysing…" : "Check this product →"}
+                {loading ? "Analysing…" : <>Check this product <ArrowRight size={16} /></>}
               </button>
             </form>
           )}
 
-          {error && <div className="error-banner">⚠ {error}</div>}
+          {error && <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={16} /> {error}
+          </div>}
 
           {loading && (
             <div id="loading-section">
@@ -162,7 +168,9 @@ export default function CheckPage() {
             <>
               <div className="results-header">
                 <span className="results-title">Analysis complete</span>
-                <button className="btn-secondary" onClick={handleReset}>← New check</button>
+                <button className="btn-secondary" onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ArrowLeft size={14} /> New check
+                </button>
               </div>
               <UtilityVerdict
                 product={result.product}

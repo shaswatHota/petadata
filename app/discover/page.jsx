@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { ArrowLeft, ArrowRight, Sparkles, AlertTriangle } from "lucide-react";
 import LoadingPipeline from "@/components/LoadingPipeline";
 import ProductCard from "@/components/ProductCard";
 import LLMSelector from "@/components/LLMSelector";
@@ -126,9 +127,11 @@ export default function DiscoverPage() {
       <div className="page-header">
         <div className="page-header-inner">
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: "0.82rem", color: "var(--text3)", marginBottom: 16 }}>
-            ← Back
+            <ArrowLeft size={14} /> Back
           </Link>
-          <h1 className="page-title">✨ Discovery</h1>
+          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={24} /> Discovery
+          </h1>
           <p className="page-subtitle">
             Describe what you want in plain language. The AI pipeline finds the best matches — including things like "no bloat" that Amazon can't filter for.
           </p>
@@ -179,13 +182,16 @@ export default function DiscoverPage() {
                 type="submit"
                 className="btn-primary"
                 disabled={loading || !query.trim()}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                {loading ? "Running pipeline…" : "Find best products →"}
+                {loading ? "Running pipeline…" : <>Find best products <ArrowRight size={16} /></>}
               </button>
             </form>
           )}
 
-          {error && <div className="error-banner">⚠ {error}</div>}
+          {error && <div className="error-banner" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={16} /> {error}
+          </div>}
 
           {loading && (
             <div id="loading-section-discover">
@@ -210,7 +216,9 @@ export default function DiscoverPage() {
                       {meta.initialProducts} searched · {meta.afterPass1} passed spec filter · {meta.youtubeValidated} YouTube-validated
                     </span>
                   )}
-                  <button className="btn-secondary" onClick={handleReset}>← New search</button>
+                  <button className="btn-secondary" onClick={handleReset} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <ArrowLeft size={14} /> New search
+                  </button>
                 </div>
               </div>
 

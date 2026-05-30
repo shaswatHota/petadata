@@ -1,5 +1,7 @@
 "use client";
 
+import { Award, Package, ShoppingCart, Lightbulb, Star, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+
 /**
  * ProductCard — Single product result with score, match reason, pros/cons.
  */
@@ -58,8 +60,16 @@ export default function ProductCard({ product, rank }) {
 
   return (
     <div className={`product-card ${isTopPick ? "top-pick" : ""}`}>
-      {isTopPick && <div className="top-pick-badge">⭐ Top Pick</div>}
-      {sponsorshipFlag && <div className="sponsor-flag">⚠ Possible sponsored review</div>}
+      {isTopPick && (
+        <div className="top-pick-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Award size={14} /> Top Pick
+        </div>
+      )}
+      {sponsorshipFlag && (
+        <div className="sponsor-flag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <AlertTriangle size={14} /> Possible sponsored review
+        </div>
+      )}
 
       <div className="card-inner">
         {/* Left: image */}
@@ -68,7 +78,7 @@ export default function ProductCard({ product, rank }) {
             <img src={image} alt={title} className="card-image" />
           ) : (
             <div className="card-image-placeholder">
-              <span>📦</span>
+              <Package size={32} />
             </div>
           )}
           {displayScore !== null && (
@@ -91,9 +101,9 @@ export default function ProductCard({ product, rank }) {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="btn-primary"
-                style={{ padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
               >
-                amazon.com link 🛒
+                amazon.com link <ShoppingCart size={14} />
               </a>
             )}
           </div>
@@ -101,8 +111,8 @@ export default function ProductCard({ product, rank }) {
           <div className="card-meta">
             {price && <span className="card-price">{formatPriceToINR(price)}</span>}
             {rating && (
-              <span className="card-rating">
-                ★ {typeof rating === "number" ? rating.toFixed(1) : rating}
+              <span className="card-rating" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <Star size={14} fill="currentColor" /> {typeof rating === "number" ? rating.toFixed(1) : rating}
                 {ratingsCount && <span className="ratings-count"> ({Number(ratingsCount).toLocaleString("en-IN")})</span>}
               </span>
             )}
@@ -115,13 +125,18 @@ export default function ProductCard({ product, rank }) {
           )}
 
           {buyRecommendation && (
-            <p className="card-recommendation">💡 {buyRecommendation}</p>
+            <p className="card-recommendation" style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <Lightbulb size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+              {buyRecommendation}
+            </p>
           )}
 
           <div className="card-signals">
             {pros.length > 0 && (
               <div className="signal-col">
-                <span className="signal-heading pros-heading">✓ Strengths</span>
+                <span className="signal-heading pros-heading" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle size={14} /> Strengths
+                </span>
                 <ul className="signal-list pros-list">
                   {pros.slice(0, 3).map((p, i) => (
                     <li key={i}>{p}</li>
@@ -131,7 +146,9 @@ export default function ProductCard({ product, rank }) {
             )}
             {cons.length > 0 && (
               <div className="signal-col">
-                <span className="signal-heading cons-heading">✗ Weaknesses</span>
+                <span className="signal-heading cons-heading" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <XCircle size={14} /> Weaknesses
+                </span>
                 <ul className="signal-list cons-list">
                   {cons.slice(0, 3).map((c, i) => (
                     <li key={i}>{c}</li>

@@ -1,5 +1,7 @@
 "use client";
 
+import { BrainCircuit, Sparkles, Cpu } from "lucide-react";
+
 /**
  * components/LLMSelector.jsx
  * Modular LLM provider + model picker.
@@ -15,7 +17,7 @@ const PROVIDERS = [
     id: "claude",
     label: "Claude",
     badge: "Anthropic",
-    icon: "🧠",
+    icon: BrainCircuit,
     models: [
       { id: "claude-sonnet-4-6", label: "Sonnet 4.6", tag: "Recommended" },
       { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5", tag: "Fast" },
@@ -26,7 +28,7 @@ const PROVIDERS = [
     id: "gemini",
     label: "Gemini",
     badge: "Google",
-    icon: "✦",
+    icon: Sparkles,
     models: [
       { id: "gemini-2.5-flash", label: "2.5 Flash", tag: "Recommended" },
       { id: "gemini-2.5-pro", label: "2.5 Pro", tag: "Powerful" },
@@ -52,29 +54,36 @@ export default function LLMSelector({ value, onChange, disabled }) {
 
   return (
     <div className="llm-selector" aria-label="LLM Model Selector">
-      <div className="llm-selector-label">
-        <span className="llm-selector-icon">⚙</span>
+      <div className="llm-selector-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span className="llm-selector-icon" style={{ display: 'flex', alignItems: 'center' }}>
+          <Cpu size={16} />
+        </span>
         AI Model
       </div>
 
       {/* Provider tabs */}
       <div className="llm-provider-tabs" role="tablist" aria-label="LLM Provider">
-        {PROVIDERS.map((prov) => (
-          <button
-            key={prov.id}
-            id={`llm-provider-${prov.id}`}
-            role="tab"
-            type="button"
-            aria-selected={value.provider === prov.id}
-            className={`llm-provider-tab ${value.provider === prov.id ? "active" : ""}`}
-            onClick={() => handleProviderChange(prov.id)}
-            disabled={disabled}
-          >
-            <span className="llm-provider-icon">{prov.icon}</span>
-            <span className="llm-provider-name">{prov.label}</span>
-            <span className="llm-provider-badge">{prov.badge}</span>
-          </button>
-        ))}
+        {PROVIDERS.map((prov) => {
+          const Icon = prov.icon;
+          return (
+            <button
+              key={prov.id}
+              id={`llm-provider-${prov.id}`}
+              role="tab"
+              type="button"
+              aria-selected={value.provider === prov.id}
+              className={`llm-provider-tab ${value.provider === prov.id ? "active" : ""}`}
+              onClick={() => handleProviderChange(prov.id)}
+              disabled={disabled}
+            >
+              <span className="llm-provider-icon" style={{ display: 'flex', alignItems: 'center' }}>
+                <Icon size={16} />
+              </span>
+              <span className="llm-provider-name">{prov.label}</span>
+              <span className="llm-provider-badge">{prov.badge}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Model pills */}

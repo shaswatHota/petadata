@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckCircle, MinusCircle, XCircle, ShoppingCart, Lightbulb, Star } from "lucide-react";
+
 /**
  * UtilityVerdict — Feature 1 result display.
  * Shows verdict badge, explanation, pros, cons, confidence, source breakdown.
@@ -19,9 +21,9 @@ export default function UtilityVerdict({ product, verdict, meta }) {
   } = verdict;
 
   const verdictConfig = {
-    "Good Fit": { cls: "verdict-good", icon: "✓", label: "Good Fit" },
-    Acceptable: { cls: "verdict-acceptable", icon: "~", label: "Acceptable" },
-    "Poor Fit": { cls: "verdict-poor", icon: "✗", label: "Poor Fit" },
+    "Good Fit": { cls: "verdict-good", icon: <CheckCircle size={32} />, label: "Good Fit" },
+    Acceptable: { cls: "verdict-acceptable", icon: <MinusCircle size={32} />, label: "Acceptable" },
+    "Poor Fit": { cls: "verdict-poor", icon: <XCircle size={32} />, label: "Poor Fit" },
   };
 
   const config = verdictConfig[v] || verdictConfig["Acceptable"];
@@ -68,9 +70,13 @@ export default function UtilityVerdict({ product, verdict, meta }) {
             )}
             <div className="verdict-product-info">
               <p className="verdict-product-title">{product.title}</p>
-              <div className="verdict-product-meta">
+              <div className="verdict-product-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {product.price && <span>{formatPriceToINR(product.price)}</span>}
-                {product.rating && <span>★ {product.rating}</span>}
+                {product.rating && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Star size={14} fill="currentColor" /> {product.rating}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -80,9 +86,9 @@ export default function UtilityVerdict({ product, verdict, meta }) {
               target="_blank" 
               rel="noopener noreferrer"
               className="btn-primary"
-              style={{ padding: '8px 16px', fontSize: '0.9rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '0.9rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
             >
-              amazon.com link 🛒
+              amazon.com link <ShoppingCart size={16} />
             </a>
           )}
         </div>
@@ -101,7 +107,9 @@ export default function UtilityVerdict({ product, verdict, meta }) {
         <div className="verdict-signals-grid">
           {pros.length > 0 && (
             <div className="verdict-signal-col pros-col">
-              <h4>✓ Works for your use case</h4>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle size={16} /> Works for your use case
+              </h4>
               <ul>
                 {pros.map((p, i) => (
                   <li key={i}>{p}</li>
@@ -111,7 +119,9 @@ export default function UtilityVerdict({ product, verdict, meta }) {
           )}
           {cons.length > 0 && (
             <div className="verdict-signal-col cons-col">
-              <h4>✗ Doesn't work for your use case</h4>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <XCircle size={16} /> Doesn't work for your use case
+              </h4>
               <ul>
                 {cons.map((c, i) => (
                   <li key={i}>{c}</li>
@@ -124,8 +134,10 @@ export default function UtilityVerdict({ product, verdict, meta }) {
 
       {/* Alternative suggestion */}
       {missingBetterOption && alternativeSuggestion && (
-        <div className="verdict-alternative">
-          <span className="alt-icon">💡</span>
+        <div className="verdict-alternative" style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <span className="alt-icon">
+            <Lightbulb size={24} />
+          </span>
           <div>
             <strong>There's likely a better option</strong>
             <p>{alternativeSuggestion}</p>
