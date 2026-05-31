@@ -72,7 +72,7 @@ export async function POST(request) {
       const results = await searchAmazonProducts(searchQuery);
       if (!results?.length) {
         return NextResponse.json({ 
-          error: `Could not find this product on Amazon. Note: The scraper uses Amazon.com, so regional links (like amazon.in) or region-specific brands (like iQOO) may not return results.` 
+          error: `Could not find this product on Amazon.in. Try a different product name or paste a direct amazon.in product URL.` 
         }, { status: 404 });
       }
       const topResult = results[0];
