@@ -40,7 +40,7 @@ export default function UtilityVerdict({ product, verdict, meta }) {
        return `₹${num.toLocaleString('en-IN')}`;
     }
     
-    const inrValue = Math.round(num * 83.5);
+    const inrValue = Math.round(num * 95.01);
     return `₹${inrValue.toLocaleString('en-IN')}`;
   };
 

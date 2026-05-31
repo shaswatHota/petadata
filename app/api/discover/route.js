@@ -127,7 +127,7 @@ export async function POST(request) {
         const ranked = pass2Result.ranked || [];
         send("status", {
           pass: 2,
-          message: `Pass 2 complete. Top ${Math.min(ranked.length, 8)} products ranked by fit.`,
+          message: `Pass 2 complete. Top ${Math.min(ranked.length, 5)} products ranked by fit.`,
           rankedCount: ranked.length,
         });
 
@@ -194,7 +194,7 @@ export async function POST(request) {
         }
 
         // Enrich final results with product images/prices from spec data
-        const enrichedResults = finalRanking.slice(0, 8).map((r) => {
+        const enrichedResults = finalRanking.slice(0, 5).map((r) => {
           const specProduct = productsWithSpecs.find((p) => p.asin === r.asin) || {};
           return {
             ...r,

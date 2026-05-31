@@ -116,7 +116,7 @@ export default function DiscoverPage() {
     <div className="page-wrap">
       <nav className="nav">
         <div className="nav-inner">
-          <Link href="/" className="nav-logo">WireSearch</Link>
+          <Link href="/" className="nav-logo">Pick Perfect</Link>
           <div className="nav-links">
             <Link href="/check" className="nav-link">Utility Check</Link>
             <Link href="/discover" className="nav-link active">Discovery</Link>

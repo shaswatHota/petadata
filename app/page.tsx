@@ -6,7 +6,7 @@ export default function Home() {
     <div className="page-wrap">
       <nav className="nav">
         <div className="nav-inner">
-          <span className="nav-logo">WireSearch</span>
+          <span className="nav-logo">Pick Perfect</span>
           <div className="nav-links">
             <Link href="/check" className="nav-link">Utility Check</Link>
             <Link href="/discover" className="nav-link">Discovery</Link>
@@ -23,9 +23,8 @@ export default function Home() {
             <span className="grad">the right way.</span>
           </h1>
           <p className="hero-sub">
-            Amazon reviews can be faked. YouTube reviews can be sponsored. WireSearch layers
-            three independent sources — specs, real owner reviews, and YouTube transcripts — to
-            give you the actual truth about any product.
+            Amazon reviews can be faked. YouTube reviews can be sponsored. Pick Perfect layers
+            three independent sources of data to tell you exactly what to buy, and why.
           </p>
         </section>
 

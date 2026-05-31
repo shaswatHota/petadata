@@ -51,7 +51,7 @@ export default function ProductCard({ product, rank }) {
        return `₹${num.toLocaleString('en-IN')}`;
     }
     
-    const inrValue = Math.round(num * 83.5);
+    const inrValue = Math.round(num * 95.01);
     return `₹${inrValue.toLocaleString('en-IN')}`;
   };
 
