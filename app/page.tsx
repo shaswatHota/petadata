@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Search, Sparkles } from "lucide-react";
 
 export default function Home() {
   return (
@@ -31,7 +32,7 @@ export default function Home() {
         {/* Feature cards */}
         <div className="features-grid">
           <Link href="/check" className="feature-card">
-            <div className="feature-icon">🔍</div>
+            <div className="feature-icon"><Search size={24} /></div>
             <div className="feature-tag">Feature 1</div>
             <h2 className="feature-title">Utility Check</h2>
             <p className="feature-desc">
@@ -42,7 +43,7 @@ export default function Home() {
           </Link>
 
           <Link href="/discover" className="feature-card">
-            <div className="feature-icon">✨</div>
+            <div className="feature-icon"><Sparkles size={24} /></div>
             <div className="feature-tag">Feature 2</div>
             <h2 className="feature-title">Discovery</h2>
             <p className="feature-desc">
