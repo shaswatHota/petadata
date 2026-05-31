@@ -133,7 +133,7 @@ export default function DiscoverPage() {
             <Sparkles size={24} /> Discovery
           </h1>
           <p className="page-subtitle">
-            Describe what you want in plain language. The AI pipeline finds the best matches — including things like "no bloat" that Amazon can't filter for.
+            Describe what you want in plain language. The AI pipeline finds the best matches — including things like "no bloat" that Flipkart can't filter for.
           </p>
         </div>
       </div>
@@ -226,7 +226,7 @@ export default function DiscoverPage() {
                 <div className="error-banner">No products matched your requirements. Try relaxing your constraints.</div>
               ) : (
                 results.map((product, i) => (
-                  <ProductCard key={product.asin || i} product={product} rank={i + 1} />
+                  <ProductCard key={product.flipkartId || product.asin || i} product={product} rank={i + 1} />
                 ))
               )}
             </div>

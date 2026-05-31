@@ -19,7 +19,7 @@ export default function LoadingPipeline({ mode, currentPass, statusMessage, stat
           { label: "Generating verdict", icon: "⚖️", pass: 2 },
         ]
       : [
-          { label: "Searching Amazon", icon: "🔍", pass: 0 },
+          { label: "Searching Flipkart", icon: "🔍", pass: 0 },
           { label: "Pass 1 — Spec filter", icon: "📋", pass: 1 },
           { label: "Pass 2 — Review scoring", icon: "🧠", pass: 2 },
           { label: "Pass 3 — YouTube check", icon: "🎥", pass: 3 },

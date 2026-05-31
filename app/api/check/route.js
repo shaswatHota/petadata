@@ -4,7 +4,7 @@
  *
  * Flow:
  * 1. Receive { product, context } from request body
- * 2. Resolve ASIN from product name or Amazon URL
+ * 2. Resolve product id from product name or Flipkart URL
  * 3. Fetch specs, reviews, YouTube signals in PARALLEL (fastest possible)
  * 4. Filter reviews to context-relevant ones
  * 5. Single Claude Sonnet call → verdict
@@ -14,7 +14,7 @@ import { NextResponse } from "next/server";
 import {
   getProductDetails,
   getProductReviews,
-  searchAmazonProducts,
+  searchFlipkartProducts,
   searchYouTube,
   getVideoComments,
 } from "@/lib/wire.js";
@@ -39,17 +39,35 @@ export async function POST(request) {
       return NextResponse.json({ error: "Use case context is required" }, { status: 400 });
     }
 
-    // Step 1: Resolve ASIN + extract a human-readable title slug from URL for fallback search
+    // Step 1: Resolve product ID from Flipkart URL or plain input
+    // Note: we keep the local variable name `asin` for compatibility with existing
+    // Wire helpers (they expect a single id param named `asin`). Semantically this
+    // is a Flipkart product id (pid or itm id).
     let asin = null;
     let urlTitleSlug = null;
-    const amazonAsinMatch = product.match(/\/([A-Z0-9]{10})(?:\/|\?|$)/);
-    if (amazonAsinMatch) {
-      asin = amazonAsinMatch[1];
-      // Extract title slug from URL path: /Product-Name-Here/dp/ASIN → "Product Name Here"
-      const slugMatch = product.match(/amazon\.[a-z.]+\/([^/]+)\/dp\//);
-      if (slugMatch) {
-        urlTitleSlug = slugMatch[1].replace(/-/g, " ").replace(/&amp;/g, "&").trim();
-      }
+
+    // Try Flipkart pid query param: ?pid=XYZ
+    const pidMatch = product.match(/[?&]pid=([^&]+)/i);
+    if (pidMatch) {
+      asin = pidMatch[1];
+    }
+
+    // Try Flipkart /p/itm<id> or /itm<id> path segments
+    if (!asin) {
+      const itmMatch = product.match(/\/p\/itm([A-Za-z0-9]+)/i) || product.match(/\/itm([A-Za-z0-9]+)/i);
+      if (itmMatch) asin = itmMatch[1];
+    }
+
+    // Extract human-readable slug from Flipkart URL for fallback search: /<slug>/p/
+    const slugMatch = product.match(/flipkart\.[a-z.]+\/([^/]+)\/p\//i) || product.match(/flipkart\.[a-z.]+\/([^/]+)\/itm/i);
+    if (slugMatch) {
+      urlTitleSlug = slugMatch[1].replace(/-/g, " ").replace(/&amp;/g, "&").trim();
+    }
+
+    // If the user pasted a raw id (pid or itm token) without a URL, accept it.
+    if (!asin) {
+      const standaloneId = product.match(/^[A-Za-z0-9_\-]{6,}$/);
+      if (standaloneId) asin = standaloneId[0];
     }
 
     // Step 2: Get product details (and ASIN if not extracted from URL)
@@ -65,21 +83,21 @@ export async function POST(request) {
     }
 
     if (!productDetails || !productDetails.title) {
-      // PDP returned 404 (e.g. amazon.in ASIN on amazon.com scraper) — search by title slug or name
+      // PDP returned 404 (e.g. flipkart product id mismatch or region-specific listing) — search by title slug or name
       // Prefer URL title slug > original product input > raw ASIN (least useful as search term)
       const searchQuery = urlTitleSlug || (asin ? null : product) || product;
       console.log(`[check] Falling back to search with query: "${searchQuery}"`);
-      const results = await searchAmazonProducts(searchQuery);
+      const results = await searchFlipkartProducts(searchQuery);
       if (!results?.length) {
         return NextResponse.json({ 
-          error: `Could not find this product on Amazon. Note: The scraper uses Amazon.com, so regional links (like amazon.in) or region-specific brands (like iQOO) may not return results.` 
+          error: `Could not find this product on Flipkart. Note: The configured Wire catalog may be region-specific, so some links or brands may not return results.` 
         }, { status: 404 });
       }
       const topResult = results[0];
-      asin = asin || topResult.asin;
+      asin = asin || topResult.flipkartId || topResult.asin || topResult.id;
       // Try to fetch full details for the search result; fall back to search result data
       try {
-        const full = await getProductDetails(topResult.asin || asin);
+        const full = await getProductDetails(topResult.flipkartId || topResult.asin || asin);
         productDetails = { ...topResult, ...full };
       } catch (e) {
         console.warn("[check] Could not fetch full details, using search result:", e.message);
@@ -145,7 +163,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       product: {
-        asin,
+        flipkartId: asin,
         title: productTitle,
         price: productDetails.price || productDetails.offers?.[0]?.price,
         image: productDetails.image || productDetails.images?.[0],

@@ -56,7 +56,7 @@ export default function ProductCard({ product, rank }) {
   };
 
   const ytBadge = getYtBadge();
-  const amazonUrl = product?.url || (product?.asin ? `https://www.amazon.com/dp/${product.asin}` : null);
+  const flipkartUrl = product?.url || null;
 
   return (
     <div className={`product-card ${isTopPick ? "top-pick" : ""}`}>
@@ -95,15 +95,15 @@ export default function ProductCard({ product, rank }) {
               {rank && <span className="card-rank">#{rank}</span>}
               <h3 className="card-title" style={{ display: 'inline' }}>{title}</h3>
             </div>
-            {amazonUrl && (
+            {flipkartUrl && (
               <a 
-                href={amazonUrl} 
+                href={flipkartUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="btn-primary"
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
               >
-                amazon.com link <ShoppingCart size={14} />
+                flipkart.com link <ShoppingCart size={14} />
               </a>
             )}
           </div>

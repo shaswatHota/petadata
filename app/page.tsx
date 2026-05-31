@@ -23,7 +23,7 @@ export default function Home() {
             <span className="grad">the right way.</span>
           </h1>
           <p className="hero-sub">
-            Amazon reviews can be faked. YouTube reviews can be sponsored. WireSearch layers
+            Flipkart reviews can be faked. YouTube reviews can be sponsored. WireSearch layers
             three independent sources — specs, real owner reviews, and YouTube transcripts — to
             give you the actual truth about any product.
           </p>
@@ -48,7 +48,7 @@ export default function Home() {
             <h2 className="feature-title">Discovery</h2>
             <p className="feature-desc">
               Describe what you want in plain English. Our three-pass AI pipeline finds the best
-              matching products — including soft requirements Amazon can't filter for.
+              matching products — including soft requirements Flipkart can't filter for.
             </p>
             <span className="feature-cta">Discover products</span>
           </Link>

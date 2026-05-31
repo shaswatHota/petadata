@@ -9,14 +9,14 @@ export default function SignalBreakdown({ meta }) {
   const sources = [
     {
       key: "specs",
-      label: "Amazon Specs",
+      label: "Flipkart Specs",
       icon: "📋",
       description: "Objective product specifications",
       active: true, // always used
     },
     {
       key: "reviews",
-      label: "Amazon Reviews",
+      label: "Flipkart Reviews",
       icon: "⭐",
       description: `${meta.reviewsAnalyzed || 0} relevant reviews analysed`,
       active: (meta.reviewsAnalyzed || 0) > 0,

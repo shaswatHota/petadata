@@ -10,7 +10,7 @@ A product research tool with two features:
 - **Feature 1 — Utility Check**: User has a specific product in mind. They declare their use case. The tool tells them whether that product actually serves their needs, backed by specs, real reviews, and independent YouTube analysis.
 - **Feature 2 — Discovery**: User describes what they want ("decent phone, good battery, bloat-free, under ₹20k"). The tool finds the best matching products using a three-pass tiered retrieval architecture, not a simple search.
 
-Both features use Wire (Anakin's authenticated action layer) for data, Claude Sonnet for reasoning, and YouTube transcripts + Amazon reviews as layered signal sources.
+Both features use Wire (Anakin's authenticated action layer) for data, Claude Sonnet for reasoning, and YouTube transcripts + Flipkart reviews as layered signal sources.
 
 ---
 
@@ -22,7 +22,7 @@ Both features use Wire (Anakin's authenticated action layer) for data, Claude So
 | Styling | Tailwind CSS | Fast, clean, no custom CSS overhead |
 | LLM | Claude Sonnet 4.6 (`claude-sonnet-4-6`) | Pass 2 and Pass 3 reasoning |
 | LLM (cheap pass) | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) | Pass 1 only — mechanical spec filtering |
-| Data layer | Wire API (Anakin) | Amazon + YouTube data via authenticated actions |
+| Data layer | Wire API (Anakin) | Flipkart + YouTube data via authenticated actions |
 | Transcripts | `youtube-transcript` npm package | Fetches auto-generated YouTube captions — no Whisper, no audio download |
 | Deployment | Vercel | Auto-detects Next.js, one push to deploy |
 
@@ -90,7 +90,7 @@ Wire's actions are all **ASYNC** — you POST a request, get a job ID back, then
 
 ## What The Product Does In One Paragraph
 
-Most people research products badly. They read Amazon reviews that may be fake, or watch a YouTube review that may be sponsored, and make a decision based on one biased source. WireSearch layers three independent sources — Amazon specs, Amazon reviews, and YouTube reviewer transcripts plus comments — and treats them differently based on what each source is actually good at. It does this for two distinct tasks: checking whether a specific product fits your needs, and finding the best product for your needs when you don't have one in mind yet.
+Most people research products badly. They read Flipkart reviews that may be fake, or watch a YouTube review that may be sponsored, and make a decision based on one biased source. WireSearch layers three independent sources — Flipkart specs, Flipkart reviews, and YouTube reviewer transcripts plus comments — and treats them differently based on what each source is actually good at. It does this for two distinct tasks: checking whether a specific product fits your needs, and finding the best product for your needs when you don't have one in mind yet.
 
 ---
 
@@ -100,19 +100,19 @@ Most people research products badly. They read Amazon reviews that may be fake, 
 
 You already have a product in mind. Maybe someone recommended it, maybe you saw it on Instagram. You want to know: is this actually right for me?
 
-You tell the system the product name or paste the Amazon link. Then you describe your situation — not in a form with dropdowns, but in plain language. Something like "student, using it for 8 hours a day at my desk, mostly lo-fi music and podcasts, budget around ₹3000." The system takes that context and evaluates the product specifically against it. The output is a verdict — good fit, acceptable, or poor fit — with a plain English explanation of why, what the product does well for your use case, where it falls short, and whether you're likely missing a better option.
+You tell the system the product name or paste the Flipkart link. Then you describe your situation — not in a form with dropdowns, but in plain language. Something like "student, using it for 8 hours a day at my desk, mostly lo-fi music and podcasts, budget around ₹3000." The system takes that context and evaluates the product specifically against it. The output is a verdict — good fit, acceptable, or poor fit — with a plain English explanation of why, what the product does well for your use case, where it falls short, and whether you're likely missing a better option.
 
 ### Feature 2 — Discovery
 
-You don't have a product in mind. You just know what you want. Something like "Android phone, good battery, no bloat, reliable, under ₹20,000." The system searches Amazon, filters the results intelligently across three passes, and returns a ranked list of the best matches — not just the highest rated, but the ones that genuinely match what you said, including things like "no bloat" that Amazon's own search cannot filter for.
+You don't have a product in mind. You just know what you want. Something like "Android phone, good battery, no bloat, reliable, under ₹20,000." The system searches Flipkart, filters the results intelligently across three passes, and returns a ranked list of the best matches — not just the highest rated, but the ones that genuinely match what you said, including things like "no bloat" that Flipkart's own search cannot filter for.
 
 ---
 
 ## Why Wire Is Essential
 
-Both features need data from Amazon and YouTube. The problem is that neither site gives you an API that returns what you actually need:
+Both features need data from Flipkart and YouTube. The problem is that neither site gives you an API that returns what you actually need:
 
-Amazon's public data doesn't include the structured spec blocks inside product pages, the full review database filtered by verified purchase status, or the ability to pull offers from multiple sellers simultaneously. You'd normally need a browser session and a scraper that breaks every few weeks.
+Flipkart's public data doesn't include the structured spec blocks inside product pages, the full review database filtered by verified purchase status, or the ability to pull offers from multiple sellers simultaneously. You'd normally need a browser session and a scraper that breaks every few weeks.
 
 YouTube's public API doesn't let you deep-walk 10,000 comments on a video, and it returns different search results depending on whether you're logged in or not.
 
@@ -124,17 +124,17 @@ Wire solves this entirely. It acts as a pre-built authenticated layer — you ca
 
 Understanding why the system uses three sources — and what job each one does — is the core of the architecture.
 
-### Amazon Product Specs
+### Flipkart Product Specs
 
 This is objective ground truth. Battery capacity in mAh, RAM in GB, processor generation, weight, dimensions, compatibility. These are facts that cannot be argued with. If a user wants a phone with at least 5000mAh battery and a product has 4000mAh, it fails. No amount of positive reviews changes that. The spec filter uses this source to eliminate products that objectively don't qualify before spending any effort on nuanced analysis.
 
-### Amazon Reviews
+### Flipkart Reviews
 
-This is longitudinal truth — what real owners say after weeks or months of use. Amazon reviews are good at surfacing durability patterns ("hinge broke after 3 months"), long-term battery degradation ("holds charge fine initially but after 6 months noticeably worse"), and use-case specific experiences ("I use this for running and it stays in my ears fine"). The weakness is that Amazon reviews can be gamed — review farms, incentivised reviews, fake verified purchases. The system accounts for this by not relying on Amazon reviews alone, and by filtering them specifically for your stated use case rather than reading all of them.
+This is longitudinal truth — what real owners say after weeks or months of use. Flipkart reviews are good at surfacing durability patterns ("hinge broke after 3 months"), long-term battery degradation ("holds charge fine initially but after 6 months noticeably worse"), and use-case specific experiences ("I use this for running and it stays in my ears fine"). The weakness is that Flipkart reviews can be gamed — review farms, incentivised reviews, fake verified purchases. The system accounts for this by not relying on Flipkart reviews alone, and by filtering them specifically for your stated use case rather than reading all of them.
 
 ### YouTube Reviewer Transcripts
 
-This is comparative truth. A YouTube reviewer has typically held 10 similar products in their hands. They say things Amazon reviewers never say — "this is better than the Sony WH-1000XM5 for commute but worse for gym use," or "the bass is muddier than the boAt Rockerz 450 at this price point." That comparative context is unique to video reviewers. The system doesn't watch the video — it fetches the auto-generated transcript that YouTube produces for virtually every video, extracts the reviewer's structured analysis, and passes that to the LLM.
+This is comparative truth. A YouTube reviewer has typically held 10 similar products in their hands. They say things Flipkart reviewers never say — "this is better than the Sony WH-1000XM5 for commute but worse for gym use," or "the bass is muddier than the boAt Rockerz 450 at this price point." That comparative context is unique to video reviewers. The system doesn't watch the video — it fetches the auto-generated transcript that YouTube produces for virtually every video, extracts the reviewer's structured analysis, and passes that to the LLM.
 
 ### YouTube Comments
 
@@ -160,7 +160,7 @@ The result is typically 50 to 150 comments, all substantive, all high-signal, re
 
 ## Review Filtering — The Keyword Approach
 
-Amazon reviews are also filtered before being used. Not all reviews about a product are relevant to your use case. If you're buying earphones for studying, a review that's entirely about gym use is noise. A review that mentions "8 hours," "long sessions," "comfort," or "fatigue" is signal.
+Flipkart reviews are also filtered before being used. Not all reviews about a product are relevant to your use case. If you're buying earphones for studying, a review that's entirely about gym use is noise. A review that mentions "8 hours," "long sessions," "comfort," or "fatigue" is signal.
 
 The system extracts the meaningful words from your context declaration — stripping out common words like "a", "the", "and", "good" — and uses those as a relevance filter. Reviews that mention more of your keywords get ranked higher. Reviews from verified purchasers get a bonus. Reviews with more helpful votes get a smaller bonus. The system then takes the top 8 to 10 reviews that survive this filter.
 
@@ -188,17 +188,17 @@ This pass reduces 20-30 products down to 10-15 survivors. The cost of this pass 
 
 This is where the real intelligence lives. The task is no longer objective — it's about things like "bloat-free," "reliable," "good battery in real use." These cannot be verified from specs. They live in what people who bought and used the product actually reported.
 
-The system fetches Amazon reviews for each surviving product, filters them using the keyword method described above, and passes everything to the smarter LLM (Sonnet). Sonnet reads the reviews and assigns scores for each of your soft requirements — how bloat-free is this phone based on what reviewers say? How reliable? How good is the battery in practice compared to the spec?
+The system fetches Flipkart reviews for each surviving product, filters them using the keyword method described above, and passes everything to the smarter LLM (Sonnet). Sonnet reads the reviews and assigns scores for each of your soft requirements — how bloat-free is this phone based on what reviewers say? How reliable? How good is the battery in practice compared to the spec?
 
 The output is a ranked list of 8-10 products ordered by how well they match your full stated requirements, both hard and soft.
 
 ### Pass 3 — YouTube Validation For Top 3 Only
 
-After Pass 2, the system knows which products are in the top 3. These are the close-call candidates where Amazon signal alone may not be enough to separate them confidently. Pass 3 adds an independent external source to validate those rankings.
+After Pass 2, the system knows which products are in the top 3. These are the close-call candidates where Flipkart signal alone may not be enough to separate them confidently. Pass 3 adds an independent external source to validate those rankings.
 
 For each of the top 3 products, the system finds a YouTube review video, fetches the transcript, fetches and filters the comments, and passes all of that to Sonnet alongside the Pass 2 rankings. Sonnet's job in this pass is specifically to confirm, contradict, or flag uncertainty in what Pass 2 found.
 
-It looks for three things: whether the YouTube reviewer appears to be sponsored (no real criticisms, unusually positive throughout), whether there are contradictions between Amazon reviewer experiences and the YouTube reviewer's findings, and whether anything in the transcript or comments is a deal-breaker for your specific use case that Pass 2 missed.
+It looks for three things: whether the YouTube reviewer appears to be sponsored (no real criticisms, unusually positive throughout), whether there are contradictions between Flipkart reviewer experiences and the YouTube reviewer's findings, and whether anything in the transcript or comments is a deal-breaker for your specific use case that Pass 2 missed.
 
 The output is a final ranked list of top products with confidence levels and any flags.
 
@@ -220,7 +220,7 @@ This design keeps the total number of Wire API calls predictable and bounded, re
 
 Feature 1 doesn't use passes because you already know which product you're evaluating. There's no elimination stage needed.
 
-Instead, it runs all data fetching in parallel — product specs, Amazon reviews, and YouTube search all happen at the same time. Then it runs a single LLM call with all the signals combined, because the task is evaluating one product against one user's context, not comparing dozens of products against each other.
+Instead, it runs all data fetching in parallel — product specs, Flipkart reviews, and YouTube search all happen at the same time. Then it runs a single LLM call with all the signals combined, because the task is evaluating one product against one user's context, not comparing dozens of products against each other.
 
 This makes Feature 1 significantly faster than Feature 2. The wait time is determined by whichever Wire call takes longest, not by sequential passes.
 
@@ -228,7 +228,7 @@ This makes Feature 1 significantly faster than Feature 2. The wait time is deter
 
 ## The Wire Async Pattern — What It Means Practically
 
-Every Wire action is asynchronous. This means when you ask Wire to fetch Amazon product details, it doesn't return the data immediately. It returns a job ID, and you have to ask Wire periodically "is this job done yet?" until it says yes.
+Every Wire action is asynchronous. This means when you ask Wire to fetch Flipkart product details, it doesn't return the data immediately. It returns a job ID, and you have to ask Wire periodically "is this job done yet?" until it says yes.
 
 This is how Wire handles anti-bot systems and login persistence under the hood — the request goes through Wire's infrastructure which may need a moment to route through the right proxy or maintain the right session. From the application's perspective, it just means every Wire call is a two-step process: submit the request and get a job ID, then poll for the result every 1.5 seconds until it's done.
 
@@ -262,7 +262,7 @@ The API routes are thin — they orchestrate calls to the library functions but 
 
 The system is designed to degrade gracefully rather than fail completely.
 
-If a YouTube transcript is unavailable for a product — some channels disable auto-captions — the system skips that source and notes it in the response. The verdict is still generated using Amazon signals alone, with a flag indicating that YouTube validation was unavailable.
+If a YouTube transcript is unavailable for a product — some channels disable auto-captions — the system skips that source and notes it in the response. The verdict is still generated using Flipkart signals alone, with a flag indicating that YouTube validation was unavailable.
 
 If Pass 3 fails for any reason, the system returns Pass 2's rankings as the result, since those are already high quality. The user gets a good answer, not an error.
 
@@ -280,4 +280,4 @@ The first query is a specific product utility check — something like boAt Aird
 
 The second query is a discovery query with mix of hard and soft requirements — wireless earphones for gym use, sweat resistant, under ₹2000. This proves Feature 2 works and that hard requirements (under ₹2000, sweat resistant) are correctly applied in Pass 1.
 
-The third query is the most important for judges: a phone request where the primary requirements are entirely soft — "bloat-free, reliable, good battery" — with only price as a hard filter. This demonstrates the core value proposition. Amazon's search cannot filter for "bloat-free." Google Shopping cannot filter for "reliable." These are experiential attributes that only live in review text. Pass 2 surfaces them. This query is where you explain to judges that this result is impossible to get any other way — not without Wire giving you authenticated access to review data at this depth, and not without the tiered retrieval architecture that makes it practical to process.
+The third query is the most important for judges: a phone request where the primary requirements are entirely soft — "bloat-free, reliable, good battery" — with only price as a hard filter. This demonstrates the core value proposition. Flipkart's search cannot filter for "bloat-free." Google Shopping cannot filter for "reliable." These are experiential attributes that only live in review text. Pass 2 surfaces them. This query is where you explain to judges that this result is impossible to get any other way — not without Wire giving you authenticated access to review data at this depth, and not without the tiered retrieval architecture that makes it practical to process.

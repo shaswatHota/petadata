@@ -42,10 +42,10 @@ for (const c of catalogs) {
 
 // ── 2. Dump Amazon catalog actions ───────────────────────────────────────────
 console.log("\n══════════════════════════════════════════════");
-console.log("  STEP 2 — Amazon catalog actions + params");
+console.log("  STEP 2 — Flipkart catalog actions + params");
 console.log("══════════════════════════════════════════════");
 try {
-  const { catalog: amzCatalog, actions: amzActions } = await get("/wire/catalog/amazon");
+  const { catalog: amzCatalog, actions: amzActions } = await get("/wire/catalog/flipkart");
   console.log(`\n  Catalog: ${amzCatalog.name} (${amzCatalog.domain})`);
   for (const a of amzActions) {
     console.log(`\n  ┌─ action_id: ${a.action_id}`);
@@ -61,8 +61,8 @@ try {
     }
   }
 } catch (e) {
-  console.error("  ⚠ Could not fetch amazon catalog:", e.message);
-  console.log("  → Try a different slug. Run STEP 1 above to find the Amazon slug.");
+  console.error("  ⚠ Could not fetch Flipkart catalog:", e.message);
+  console.log("  → Try a different slug. Run STEP 1 above to find the Flipkart slug.");
 }
 
 // ── 3. Dump YouTube catalog actions ──────────────────────────────────────────
@@ -92,11 +92,11 @@ try {
 
 // ── 4. Look up your configured action IDs directly ───────────────────────────
 const configuredActions = {
-  WIRE_ACTION_AMAZON_SEARCH:  process.env.WIRE_ACTION_AMAZON_SEARCH,
-  WIRE_ACTION_AMAZON_DETAILS: process.env.WIRE_ACTION_AMAZON_DETAILS,
-  WIRE_ACTION_AMAZON_REVIEWS: process.env.WIRE_ACTION_AMAZON_REVIEWS,
-  WIRE_ACTION_YT_SEARCH:      process.env.WIRE_ACTION_YT_SEARCH,
-  WIRE_ACTION_YT_COMMENTS:    process.env.WIRE_ACTION_YT_COMMENTS,
+  WIRE_ACTION_FLIPKART_SEARCH:  process.env.WIRE_ACTION_FLIPKART_SEARCH,
+  WIRE_ACTION_FLIPKART_DETAILS: process.env.WIRE_ACTION_FLIPKART_DETAILS,
+  WIRE_ACTION_FLIPKART_REVIEWS: process.env.WIRE_ACTION_FLIPKART_REVIEWS,
+  WIRE_ACTION_YT_SEARCH:        process.env.WIRE_ACTION_YT_SEARCH,
+  WIRE_ACTION_YT_COMMENTS:      process.env.WIRE_ACTION_YT_COMMENTS,
 };
 
 const nonEmpty = Object.entries(configuredActions).filter(([, v]) => v);

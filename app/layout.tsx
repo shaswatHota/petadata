@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "WireSearch — AI Buyer Intelligence",
   description:
-    "Stop guessing. WireSearch analyses Amazon specs, real reviews, and YouTube reviewer transcripts to tell you exactly what to buy — and why.",
+    "Stop guessing. WireSearch analyses Flipkart specs, real reviews, and YouTube reviewer transcripts to tell you exactly what to buy — and why.",
 };
 
 export default function RootLayout({

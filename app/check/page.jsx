@@ -79,7 +79,7 @@ export default function CheckPage() {
             <Search size={24} /> Utility Check
           </h1>
           <p className="page-subtitle">
-            Paste a product name or Amazon URL and describe your use case. We'll tell you if it's the right fit.
+            Paste a product name or Flipkart URL and describe your use case. We'll tell you if it's the right fit.
           </p>
         </div>
       </div>
@@ -90,13 +90,13 @@ export default function CheckPage() {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label" htmlFor="product-input">
-                  Product name or Amazon URL
+                  Product name or Flipkart URL
                 </label>
                 <input
                   id="product-input"
                   className="form-input"
                   type="text"
-                  placeholder="e.g. boAt Airdopes 141  or  amazon.in/dp/B09..."
+                  placeholder="e.g. boAt Airdopes 141  or  flipkart.com/..."
                   value={product}
                   onChange={(e) => setProduct(e.target.value)}
                   disabled={loading}

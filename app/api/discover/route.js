@@ -4,7 +4,7 @@
  *
  * Flow:
  * 1. Receive { query } from request body
- * 2. Search Amazon → 20-30 products
+ * 2. Search Flipkart → 20-30 products
  * 3. Pass 1: Fetch all specs, run Haiku → eliminate hard failures → 10-15 survivors
  * 4. Pass 2: Fetch + filter reviews for survivors, run Sonnet → ranked top 8-10
  * 5. Pass 3: YouTube (transcript + comments) for top 3 ONLY, run Sonnet → final ranking
@@ -12,7 +12,7 @@
  * Progress is streamed via Server-Sent Events so the UI can show real-time pass status.
  */
 
-import { searchAmazonProducts, getProductDetails, getProductReviews, searchYouTube, getVideoComments } from "@/lib/wire.js";
+import { searchFlipkartProducts, getProductDetails, getProductReviews, searchYouTube, getVideoComments } from "@/lib/wire.js";
 import { runPass1, runPass2, runPass3 } from "@/lib/llm.js";
 import { extractKeywords, filterReviews, filterComments, formatReviewsForLLM, formatCommentsForLLM } from "@/lib/filters.js";
 import { getTranscript, extractReviewerAnalysis, extractVideoId } from "@/lib/transcript.js";
@@ -46,11 +46,11 @@ export async function POST(request) {
 
       try {
         const keywords = extractKeywords(query);
-        send("status", { pass: 0, message: "Searching Amazon for matching products..." });
+        send("status", { pass: 0, message: "Searching Flipkart for matching products..." });
 
-        // ── Step 1: Amazon search ───────────────────────────────────────────
-        let products = await searchAmazonProducts(query);
-        console.log(`[discover] searchAmazonProducts returned ${products?.length ?? "null"} items`);
+        // ── Step 1: Flipkart search ───────────────────────────────────────────
+        let products = await searchFlipkartProducts(query);
+        console.log(`[discover] searchFlipkartProducts returned ${products?.length ?? "null"} items`);
         if (!products?.length) {
           send("error", { message: "No products found for your query. Try rephrasing." });
           controller.close();
@@ -69,12 +69,12 @@ export async function POST(request) {
           .map((p, i) => {
             const specResult = specsResults[i];
             if (specResult.status === "fulfilled" && specResult.value) {
-              return { ...p, ...specResult.value, asin: p.asin || p.id || specResult.value.asin };
+              return { ...p, ...specResult.value, flipkartId: p.flipkartId || p.asin || p.id || specResult.value.asin };
             }
             // Spec fetch failed (e.g. 404 on PDP) — keep the product from search results
-            return { ...p, asin: p.asin || p.id, specs: {} };
+            return { ...p, flipkartId: p.flipkartId || p.asin || p.id, specs: {} };
           })
-          .filter((p) => p.asin); // skip any that have no ASIN at all
+          .filter((p) => p.flipkartId); // skip any that have no Flipkart ID at all
 
         // ── Pass 1: Hard spec elimination (Haiku) ──────────────────────────
         send("status", { pass: 1, message: "Pass 1: Eliminating products that fail hard requirements..." });
@@ -101,11 +101,11 @@ export async function POST(request) {
           return;
         }
 
-        // ── Pass 2: Soft scoring via Amazon reviews (Sonnet) ───────────────
-        send("status", { pass: 2, message: "Pass 2: Fetching Amazon reviews and scoring soft requirements..." });
+        // ── Pass 2: Soft scoring via Flipkart reviews (Sonnet) ───────────────
+        send("status", { pass: 2, message: "Pass 2: Fetching Flipkart reviews and scoring soft requirements..." });
 
         const reviewsResults = await Promise.allSettled(
-          survivors.map((p) => getProductReviews(p.asin))
+          survivors.map((p) => getProductReviews(p.flipkartId))
         );
 
         const productsWithReviews = survivors.map((p, i) => {
@@ -147,7 +147,7 @@ export async function POST(request) {
           try {
             const videos = await searchYouTube(product.title);
             if (!videos?.length) {
-              ytDataArray.push({ asin: product.asin, title: product.title, transcript: null, comments: null, videoTitle: null });
+              ytDataArray.push({ flipkartId: product.flipkartId, title: product.title, transcript: null, comments: null, videoTitle: null });
               continue;
             }
 
@@ -171,10 +171,10 @@ export async function POST(request) {
             const filteredComments = filterComments(rawComments);
             const comments = filteredComments.length ? formatCommentsForLLM(filteredComments) : null;
 
-            ytDataArray.push({ asin: product.asin, title: product.title, transcript, comments, videoTitle });
+            ytDataArray.push({ flipkartId: product.flipkartId, title: product.title, transcript, comments, videoTitle });
           } catch (e) {
             console.warn(`[discover] YouTube fetch failed for ${product.title}:`, e.message);
-            ytDataArray.push({ asin: product.asin, title: product.title, transcript: null, comments: null, videoTitle: null });
+            ytDataArray.push({ flipkartId: product.flipkartId, title: product.title, transcript: null, comments: null, videoTitle: null });
           }
         }
 
@@ -184,8 +184,8 @@ export async function POST(request) {
           const pass3Result = await runPass3(top3, query, ytDataArray, llmConfig);
           if (pass3Result?.finalRanking?.length) {
             // Merge pass 3 top results with remaining ranked products from pass 2
-            const top3Asins = new Set(pass3Result.finalRanking.map((p) => p.asin));
-            const rest = ranked.slice(3).filter((p) => !top3Asins.has(p.asin));
+            const top3FlipkartIds = new Set(pass3Result.finalRanking.map((p) => p.flipkartId || p.asin || p.id));
+            const rest = ranked.slice(3).filter((p) => !top3FlipkartIds.has(p.flipkartId || p.asin || p.id));
             finalRanking = [...pass3Result.finalRanking, ...rest];
           }
         } catch (e) {
@@ -195,7 +195,7 @@ export async function POST(request) {
 
         // Enrich final results with product images/prices from spec data
         const enrichedResults = finalRanking.slice(0, 8).map((r) => {
-          const specProduct = productsWithSpecs.find((p) => p.asin === r.asin) || {};
+          const specProduct = productsWithSpecs.find((p) => (p.flipkartId || p.asin || p.id) === (r.flipkartId || r.asin || r.id)) || {};
           return {
             ...r,
             image: specProduct.image || specProduct.images?.[0] || null,

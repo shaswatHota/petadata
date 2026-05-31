@@ -44,7 +44,7 @@ export default function UtilityVerdict({ product, verdict, meta }) {
     return `₹${inrValue.toLocaleString('en-IN')}`;
   };
 
-  const amazonUrl = product?.url || (product?.asin ? `https://www.amazon.com/dp/${product.asin}` : null);
+  const flipkartUrl = product?.url || null;
 
   return (
     <div className="utility-verdict">
@@ -80,15 +80,15 @@ export default function UtilityVerdict({ product, verdict, meta }) {
               </div>
             </div>
           </div>
-          {amazonUrl && (
+          {flipkartUrl && (
             <a 
-              href={amazonUrl} 
+              href={flipkartUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="btn-primary"
               style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '0.9rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
             >
-              amazon.com link <ShoppingCart size={16} />
+              flipkart.com link <ShoppingCart size={16} />
             </a>
           )}
         </div>
